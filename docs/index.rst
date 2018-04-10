@@ -7,7 +7,6 @@ Easy MicroPython 教程与手册
 ============================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 2
 
     simple/index
