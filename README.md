@@ -2,7 +2,7 @@
 Easy MicroPython是在MicroPython之上的一层封装，将针脚操作和传感器、控制器连接进行了进一步的简化，目的是为了让初学者更加方便、快捷地使用MicroPython。
 
 # 安装方法
-http://easy-micropython.readthedocs.io/zh_CN/latest/install.rst
+http://easy-micropython.readthedocs.io/zh_CN/latest/install.html
 
 # 完整文档与教程
 请查看：http://easy-micropython.readthedocs.io/zh_CN/latest/
