@@ -1,0 +1,15 @@
+指纹识别
+=============
+
+本代码使用的是微雪指纹模块，其余指纹模块若想使用封装，可以私信联系我。
+
+由于本指纹识别模块是串口通讯，而ESP8266由于其本身设计原因，无法简单通过UART0之外的串口来进行通讯，故而本代码只适合用于ESP32为核心的NodeMCU。
+
+请将指纹模块的RX端接到SD3(GPIO10)，将TX端接到SD2(GPIO9)::
+
+    from ezmpy import *
+    f = FINGER()
+    f.add_finger()  # 添加指纹，会录入3次，3次正常则返回True，否则返回False
+    print(f.match_finger())  # 进行指纹比对，如果当前指纹在指纹库中存在，则返回其ID（ID必定大于0），否则返回0或者False
+
+具体可以查看::doc:`/sensors/微雪(waveshare)指纹传感器` 

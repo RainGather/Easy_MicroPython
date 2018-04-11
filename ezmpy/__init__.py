@@ -13,7 +13,7 @@ num_map = [16, 5, 4, 0, 2, 14, 12, 13, 15, 3, 1]
 
 def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=19200):
     from machine import UART
-    from .finger import Finger
+    from .waveshare import Finger
     ser = UART(port, baudrate)
     ser.init(baudrate, bits=8, parity=None, stop=1)
     return Finger(ser)

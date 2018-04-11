@@ -21,16 +21,16 @@ LIB_NAME = 'ezmpy'
 
 def flash(com):
     print('刷入中，请等待，请不要断开连接，或断电，或对板子做任何操作，包括拔插线头，如长时间未反应，请直接关闭本窗口重试...')
-    posix_d = current_path.as_posix()
+    posix_d = (current_path / LIB_NAME).absolute().as_posix()
     if ':' in posix_d:
         posix_d = posix_d.split(':')[1]
     lcd_script = 'lcd \\"{}\\";'.format(posix_d)
-    cd_script = 'mk {}; cd {};'.format(LIB_NAME, LIB_NAME)
+    cd_script = 'md {}; cd {};'.format(LIB_NAME, LIB_NAME)
     files = ['put \\"{}\\";'.format(p.name) for p in list((current_path / LIB_NAME).glob('*.py'))]
     mpf_script = ''.join(files)
     script = lcd_script + cd_script + mpf_script
     cmd = 'python -m mp.mpfshell --open {} -n -c \"{}\"'.format(com, script)
-    print(cmd)
+    # print(cmd)
     p = subprocess.Popen(cmd, shell=True, stderr=subprocess.PIPE, stdout=subprocess.PIPE)
     out, err = p.communicate()
     if 'not connected' in out.decode('utf-8', 'ignore').lower():
@@ -54,7 +54,6 @@ def find_com():
         else:
             print('端口：{} 连接失败'.format(com))
     return False
-    
 
 
 if __name__ == '__main__':
@@ -67,19 +66,7 @@ if __name__ == '__main__':
     if 'COM' not in com.upper():
         com = 'COM{}'.format(com)
     if flash(com):
-        print('刷入成功！')
-        print('')
-        print('')
-        print('')
-        print('==========欢迎使用Assert驿站！==========')
-        print('== 请按下主板上的重置[RST]按钮开始！  ==')
-        print('== 请按下主板上的重置[RST]按钮开始！  ==')
-        print('== 请按下主板上的重置[RST]按钮开始！  ==')
-        print('========================================')
-        print('')
-        print('')
-        print('')
+        print('Easy MicroPython 刷入成功！')
     else:
         print('刷入失败！请查看端口是否有被占用，可拔插后重试...')
         sys.exit()
-        

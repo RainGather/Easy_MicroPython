@@ -1,0 +1,22 @@
+获取温度传感器的值
+====================
+
+将DHT11或DHT22的信号线连接到针脚2，用如下代码获取温湿度的值::
+
+    import time
+    from ezmpy import *
+
+
+    # 2针脚连DHT11温湿度传感器的数据端，如果是DHT22请将下列代码中的DHT11改成DHT22
+    d = DHT11(2)
+
+
+    while True:
+        # 一口气获取温度和湿度
+        wendu, shidu = d.get()
+        # 打印温度到窗口
+        print(wendu)
+        # 打印湿度到窗口
+        print(shidu)
+        # 等待1秒
+        time.sleep(1)
