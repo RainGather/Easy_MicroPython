@@ -4,6 +4,10 @@ import time
 class Finger():
     def __init__(self, ser):
         self.ser = ser
+        self.add = self.add_finger
+        self.delete = self.del_all_fingers
+        self.match = self.match_finger
+        self.count = self.get_user_count
  
     # 添加指纹
     def add_finger(self, user_id=None):

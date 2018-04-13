@@ -1,0 +1,9 @@
+模拟输入
+=============
+
+NodeMCU的ESP8266版本，只有一个A0模拟输入，其官方的读取方式也很简单，就没有再度封装::
+
+    from machine import ADC
+    a = ADC(0)
+    a.read()
+

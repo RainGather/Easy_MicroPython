@@ -19,13 +19,19 @@ os.chdir(current_path)
 LIB_NAME = 'ezmpy'
 
 
-def flash(com):
+def flash(com, file=None):
     print('刷入中，请等待，请不要断开连接，或断电，或对板子做任何操作，包括拔插线头，如长时间未反应，请直接关闭本窗口重试...')
     posix_d = (current_path / LIB_NAME).absolute().as_posix()
     if ':' in posix_d:
         posix_d = posix_d.split(':')[1]
     lcd_script = 'lcd \\"{}\\";'.format(posix_d)
-    cd_script = 'md {}; cd {};'.format(LIB_NAME, LIB_NAME)
+    # cd_script = 'md {}; cd {};'.format(LIB_NAME, LIB_NAME)
+    cd_script = ''
+    if file:
+        print('刷入文件{}中...'.format(file))
+        add_prefix(file)
+    else:
+        print('刷入Easy MicroPython框架中...')
     files = ['put \\"{}\\";'.format(p.name) for p in list((current_path / LIB_NAME).glob('*.py'))]
     mpf_script = ''.join(files)
     script = lcd_script + cd_script + mpf_script
@@ -35,6 +41,23 @@ def flash(com):
     out, err = p.communicate()
     if 'not connected' in out.decode('utf-8', 'ignore').lower():
         return False
+    return True
+    
+
+def repl(com):
+    subprocess.call('python -m mp.mpfshell --open {} -c \"repl\"'.format(com), shell=True)
+
+
+def add_prefix(main_file_name):
+    main_file_path = current_path / main_file_name
+    main_with_prefix = ''
+    with main_file_path.open('r', encoding='utf-8') as fr:
+        main_with_prefix = fr.read()
+        lines = main_with_prefix.split('\n')
+        if 'from ezmpy import *' not in lines:
+            main_with_prefix = 'from ezmpy import *\n' + main_with_prefix
+    with (current_path / LIB_NAME / 'main.py').open('w', encoding='utf-8') as fw:
+        fw.write(main_with_prefix)
     return True
 
 
@@ -56,6 +79,22 @@ def find_com():
     return False
 
 
+def get_main_file_name():
+    files = [p.name for p in current_path.glob('*.py')]
+    print('请选择烧录文件(如你想烧录的文件不在列表中，请将该文件复制到本目录下)：')
+    for i in range(len(files)):
+        print('[{}]: {}'.format(i, files[i]))
+    i = input('请输入文件的序号(直接回车烧录框架)：')
+    if not i:
+        return None
+    else:
+        try:
+            return files[int(i)]
+        except Exception as e:
+            print('输入错误！请关闭本窗口重试！')
+            sys.exit()
+
+
 if __name__ == '__main__':
     com = input('请输入COM端口号，可通过[WIN + X]快捷键，按[G]后，在设备管理器中查看，或者直接[回车]自动搜索： ')
     if not com:
@@ -65,8 +104,10 @@ if __name__ == '__main__':
             sys.exit()
     if 'COM' not in com.upper():
         com = 'COM{}'.format(com)
-    if flash(com):
-        print('Easy MicroPython 刷入成功！')
+    file = get_main_file_name()
+    if flash(com, file):
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        repl(com)
     else:
         print('刷入失败！请查看端口是否有被占用，可拔插后重试...')
         sys.exit()
