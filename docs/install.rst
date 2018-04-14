@@ -3,7 +3,7 @@
 
 首先你需要一块NodeMCU板，推荐基于ESP32的，功能更强大，基于ESP8266的也可以使用大部分的功能。
 
-之后将你的NodeMCU板刷入MicroPython框架，具体方法可以查看`MicroPython官网 <http://www.micropython.org/>`_
+之后将你的NodeMCU板刷入MicroPython框架，具体方法可以查看 `MicroPython官网 <http://www.micropython.org/>`_
 
 本框架本质上是一些封装好函数的py文件，放置于NodeMCU的根目录即可正常使用。
 
