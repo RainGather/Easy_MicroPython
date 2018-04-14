@@ -30,7 +30,10 @@ def flash(com, file=None):
     if file:
         print('刷入文件{}中...'.format(file))
         add_prefix(file)
+        print('更新Easy MicroPython框架中...')
     else:
+        if (current_path / LIB_NAME / 'main.py').exists():
+            os.remove(current_path / LIB_NAME / 'main.py')
         print('刷入Easy MicroPython框架中...')
     files = ['put \\"{}\\";'.format(p.name) for p in list((current_path / LIB_NAME).glob('*.py'))]
     mpf_script = ''.join(files)
@@ -106,7 +109,21 @@ if __name__ == '__main__':
         com = 'COM{}'.format(com)
     file = get_main_file_name()
     if flash(com, file):
+        print('')
+        print('')
+        print('')
+        print('↓↓↓↓↓↓↓↓↓↓请看下面提示！！！！↓↓↓↓↓↓↓↓↓↓↓')
         print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！')
+        print('刷入成功！请按板子上的[RST]按钮或[CTRL + D]来运行！重要的事情说7遍都不为过！！！！！！')
+        print('↑↑↑↑↑↑↑↑↑↑请看上面提示！！！！↑↑↑↑↑↑↑↑↑↑↑')
+        print('')
+        print('')
+        print('')
         repl(com)
     else:
         print('刷入失败！请查看端口是否有被占用，可拔插后重试...')

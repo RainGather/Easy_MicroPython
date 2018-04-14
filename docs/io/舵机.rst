@@ -13,3 +13,5 @@
 
     d = SERVO(2, freq=440)
     d.turn(90)
+
+为了便于母语中文的初学者使用，SERVO与DUOJI做了映射，zhuan与turn做了映射，用DUOJI、zhuan代替上述的SERVO、turn词汇，也可以正常使用。

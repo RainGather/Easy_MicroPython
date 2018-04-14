@@ -4,6 +4,7 @@
 .. toctree::
     :maxdepth: 2
 
+    超声波传感器
     DHT11温湿度传感器
     DHT22温湿度传感器
     微雪(waveshare)指纹传感器

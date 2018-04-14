@@ -1,3 +1,8 @@
+__author__ = 'Qiu Cheng(Rain Gather)'
+__email__ = 'raingather@outlook.com'
+__project__ = 'https://github.com/RainGather/Easy_MicroPython'
+__licence__ = 'GPL 3.0 https://github.com/RainGather/Easy_MicroPython/blob/release/LICENSE'
+
 import urequests as requests
 import time
 import ujson as json
@@ -9,16 +14,22 @@ import dht
 from machine import UART
 from WAVESHARE import Finger
 from PCF8591 import PCF8591
-from Ultrasonic import Ultrasonic
+from HCSR04 import HCSR04
 
 
 def num_map(num):
     if 'esp32' in sys.platform.lower():
         return num
     else:
-        nums = [16, 5, 4, 0, 2, 14, 12, 13, 15, 3, 1]
+        nums = [16, 5, 4, 0, 2, 14, 12, 13, 15]
         return nums[num]
 
+
+def ULTRASONIC(trig_Pin, echo_Pin):
+    trig_Pin = num_map(trig_Pin)
+    echo_Pin = num_map(echo_Pin)
+    return HCSR04(trig_Pin, echo_Pin)
+    
 
 def WIFI(ssid, pwd):
     wlan = network.WLAN(network.STA_IF)
@@ -106,3 +117,4 @@ def PWM(num, freq=50):
 
 DUOJI = SERVO
 FINGER = WAVESHARE_UART_Fingerprint_Reader
+CHAOSHENGBO = ULTRASONIC
