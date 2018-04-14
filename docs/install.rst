@@ -3,15 +3,16 @@
 
 首先你需要一块NodeMCU板，推荐基于ESP32的，功能更强大，基于ESP8266的也可以使用大部分的功能。
 
-之后将你的NodeMCU板刷入MicroPython框架，具体方法可以查看:`MicroPython官网 <http://www.micropython.org/>`_
+之后将你的NodeMCU板刷入MicroPython框架，具体方法可以查看`MicroPython官网 <http://www.micropython.org/>`_
 
 本框架本质上是一些封装好函数的py文件，放置于NodeMCU的根目录即可正常使用。
 
 项目提供了一个自动刷入的程序，如果你对NodeMCU不熟悉，可以跟着以下步骤直接使用：
 
 1. 下载本项目：https://github.com/RainGather/Easy_MicroPython/archive/release.zip
-2. 解压到一个目录中，例如：C:\nodemcu，请保证整个路径没有空格和中文，同时请务必放在C盘（放在其它盘符可能会导致未知的错误）
+2. 解压到一个目录中，例如：C:\\nodemcu，请保证整个路径没有空格和中文，同时请务必放在C盘（放在其它盘符可能会导致未知的错误）
 3. 在该目录下，新建HelloWorld.py，在里面可以写入本手册中的案例代码。例如::
+
     print('Hello World')
 4. 安装Python 3，同时请将Python路径加入到环境变量PATH中
 5. 双击flash.bat运行
