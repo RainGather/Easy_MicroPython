@@ -111,7 +111,8 @@ class SERVO():
 
 
 def PWM(num, freq=50):
-    pin = OUT(num)
+    num = num_map(num)
+    pin = machine.Pin(num, machine.Pin.OUT)
     return machine.PWM(pin, freq=freq)
 
 

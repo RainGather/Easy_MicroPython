@@ -83,7 +83,7 @@ def find_com():
 
 
 def get_main_file_name():
-    files = [p.name for p in current_path.glob('*.py')]
+    files = [p.name for p in current_path.glob('*.py') if p.name.lower() not in ['flash.py']]
     print('请选择烧录文件(如你想烧录的文件不在列表中，请将该文件复制到本目录下)：')
     for i in range(len(files)):
         print('[{}]: {}'.format(i, files[i]))
