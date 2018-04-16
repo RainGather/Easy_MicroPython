@@ -15,6 +15,7 @@ from machine import UART
 from WAVESHARE import Finger
 from PCF8591 import PCF8591
 from HCSR04 import HCSR04
+from NTP import set_ntp_time
 
 
 def num_map(num):
@@ -37,9 +38,29 @@ def WIFI(ssid, pwd):
         print('Connecting to network...')
         wlan.active(True)
         wlan.connect(ssid, pwd)
+        t = time.time()
         while not wlan.isconnected():
-            pass
+            if time.time() - t > 15:
+                print('Network Connect Error, Please Press [RST] To Retry...')
+                wlan.active(False)
+                sys.exit()
         print('Network config: ', wlan.ifconfig())
+    for i in range(5):
+        try:
+            set_ntp_time()
+            break
+        except Exception as e:
+            print(e)
+            if i < 4:
+                print('ntp time set error...try again...')
+            else:
+                print('ntp time set error! will just use local time')
+
+
+def ntp_ok():
+    if time.time() < 252288000:
+        return False
+    return True
 
 
 def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=19200):

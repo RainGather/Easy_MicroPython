@@ -1,3 +1,8 @@
+__author__ = 'Qiu Cheng(Rain Gather)'
+__email__ = 'raingather@outlook.com'
+__project__ = 'https://github.com/RainGather/Easy_MicroPython'
+__licence__ = 'GPL 3.0 https://github.com/RainGather/Easy_MicroPython/blob/release/LICENSE'
+
 import time
 
 
