@@ -27,4 +27,21 @@
 
 匹配指纹::
 
-    f.match()  # 如果当前指纹和已保存的指纹有相符的，会返回保存指纹的ID(ID必定>0)，否则返回0或False
+    f.match_finger()  # 如果当前指纹和已保存的指纹有相符的，会返回保存指纹的ID(ID必定>0)，否则返回0或False
+
+由于指纹匹配时，处于阻塞状态，无法进行任何其它操作，故而可以人工异步匹配::
+
+    import time
+
+    f = FINGER()
+    f.ready()  # 指纹模块进入识别状态
+    while True:
+        result = f.match()
+        if result == 0:
+            print('Finger Error!')  # 匹配错误，指纹不是已录入指纹
+            f.ready()  # 重新进入识别状态进行比对
+        if result is None:
+            print('Waiting for Finger!')  # 指纹还处于识别状态，还没有手指放上去让识别
+        if result:
+            print('Right!')
+        time.sleep(0.1)
