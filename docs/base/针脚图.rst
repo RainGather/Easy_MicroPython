@@ -1,0 +1,10 @@
+针脚图
+==========================
+
+ESP8266:
+
+.. image:: nodemcu_8266_pin.jpg
+
+ESP32:
+
+.. image:: nodemcu_32s_pin.png

@@ -5,23 +5,22 @@
 
 将指纹传感器的电源线接好，将RX端接到SD3(GPIO10)，将TX端接到SD2(GPIO9)。
 
-指纹录入::
+声明对象::
 
     f = FINGER()
-    f.add_finger()  # 运行后会要求连续按压3次指纹，返回True代表录入成功，False代表录入失败，可能是指纹上有异物，重试即可
+
+指纹录入::
+
+    f.add()  # 运行后会要求连续按压3次指纹，返回True代表录入成功，False代表录入失败，可能是指纹上有异物，重试即可
 
 已保存的指纹数量::
 
-    f = FINGER()
-    count = f.get_user_count()  # 已保存的指纹数量赋值给count变量
+    count = f.count()  # 已保存的指纹数量赋值给count变量
 
 删除所有保存的指纹::
 
-    f = FINGER()
-    f.del_all_fingers()
+    f.delete()
 
 匹配指纹::
 
-    f = FINGER()
-    f.match_finger()  # 如果当前指纹和已保存的指纹有相符的，会返回保存指纹的ID(ID必定>0)，否则返回0或False
-
+    f.match()  # 如果当前指纹和已保存的指纹有相符的，会返回保存指纹的ID(ID必定>0)，否则返回0或False
