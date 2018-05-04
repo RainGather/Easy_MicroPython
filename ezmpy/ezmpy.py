@@ -63,10 +63,10 @@ def ntp_ok():
     return True
 
 
-def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=19200):
+def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=19200, timeout=False):
     ser = UART(port, baudrate)
     ser.init(baudrate, bits=8, parity=None, stop=1)
-    return Finger(ser)
+    return Finger(ser=ser, timeout=timeout)
 
 
 class ANALOG(PCF8591):

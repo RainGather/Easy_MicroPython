@@ -7,12 +7,13 @@ import time
 
 
 class Finger():
-    def __init__(self, ser):
+    def __init__(self, ser, timeout=False):
         self.ser = ser
         self.add = self.add_finger
         self.delete = self.del_all_fingers
         self.match = self.match_finger
         self.count = self.get_user_count
+        self.timeout = timeout
  
     # 添加指纹
     def add_finger(self, user_id=None):
@@ -27,15 +28,21 @@ class Finger():
         add_finger_cmd = [0xF5, 0x01, high8, low8, 1, 0, 0, 0xF5]
         print('Please Put Your Finger On Sensor...')
         result = self.send_cmd(add_finger_cmd)
+        if not result:
+            return False
         # 由于该模块要求指纹添加3次，故而需要判断3次
         if result == b'\xf5\x01\x00\x00\x00\x00\x01\xf5':
             add_finger_cmd[1] += 1
             print('Please Put Your Finger On Sensor Again...')
             result = self.send_cmd(add_finger_cmd)
+            if not result:
+                return False
             if result == b'\xf5\x02\x00\x00\x00\x00\x02\xf5':
                 add_finger_cmd[1] += 1
                 print('Please Put Your Finger On Sensor Again Again...')
                 result = self.send_cmd(add_finger_cmd)
+                if not result:
+                    return False
                 if result == b'\xf5\x03\x00\x00\x00\x00\x03\xf5':
                     return True
         return False
@@ -48,6 +55,8 @@ class Finger():
         cmd = self.gen_chk(cmd)
         # 发送命令并获取返回值
         result = self.send_cmd(cmd)
+        if not result:
+            return False
         return result
 
     # 获取已登记的指纹数量
@@ -58,6 +67,8 @@ class Finger():
         cmd = self.gen_chk(cmd)
         # 发送命令并获取返回值
         result = self.send_cmd(cmd)
+        if not result:
+            return False
         return result[2] * (16 ** 2) + result[3]
 
     # 指纹匹配，如果正确返回user_id(从1开始)，否则返回False
@@ -68,6 +79,8 @@ class Finger():
         match_cmd = self.gen_chk(match_cmd)
         # 发送命令并获取返回值
         result = self.send_cmd(match_cmd)
+        if not result:
+            return False
         user_id = result[2] * (16 ** 2) + result[3]
         return user_id
 
@@ -88,11 +101,19 @@ class Finger():
         # 发送到串口
         self.ser.write(msg)
         # 如果串口没有返回信息就一直等待
+        if self.timeout:
+            run_time = time.time()
         try:
             while not self.ser.any():
+                if self.timeout:
+                    if time.time() - run_time > self.timeout:
+                        return False
                 time.sleep(0.1)
         except Exception as e:
             while not self.ser.readable():
+                if self.timeout:
+                    if time.time() - run_time > self.timeout:
+                        return False
                 time.sleep(0.1)
         # time.sleep(2)
         # 返回串口返回的8位信息
