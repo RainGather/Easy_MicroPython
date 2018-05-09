@@ -35,7 +35,7 @@ def flash(com, file=None):
         if (current_path / LIB_NAME / 'main.py').exists():
             os.remove(current_path / LIB_NAME / 'main.py')
         print('刷入Easy MicroPython框架中...')
-    files = ['put \\"{}\\";'.format(p.name) for p in list((current_path / LIB_NAME).glob('*.py'))]
+    files = ['put \\"{}\\";'.format(p.name) for p in list((current_path / LIB_NAME).glob('*py'))]
     mpf_script = ''.join(files)
     script = lcd_script + cd_script + mpf_script
     cmd = 'python -m mp.mpfshell --open {} -n -c \"{}\"'.format(com, script)
@@ -56,9 +56,10 @@ def add_prefix(main_file_name):
     main_with_prefix = ''
     with main_file_path.open('r', encoding='utf-8') as fr:
         main_with_prefix = fr.read()
-        lines = main_with_prefix.split('\n')
-        if 'from ezmpy import *' not in lines:
+        if 'from ezmpy import ' not in main_with_prefix:
             main_with_prefix = 'from ezmpy import *\n' + main_with_prefix
+        if '@' in main_with_prefix and '\nrun()' not in main_with_prefix:
+            main_with_prefix += '\nrun()\n'
     with (current_path / LIB_NAME / 'main.py').open('w', encoding='utf-8') as fw:
         fw.write(main_with_prefix)
     return True
@@ -83,7 +84,7 @@ def find_com():
 
 
 def get_main_file_name():
-    files = [p.name for p in current_path.glob('*.py') if p.name.lower() not in ['flash.py']]
+    files = [p.name for p in current_path.glob('*.py') if p.name.lower() not in ['flash.py', 'build.py']]
     print('请选择烧录文件(如你想烧录的文件不在列表中，请将该文件复制到本目录下)：')
     for i in range(len(files)):
         print('[{}]: {}'.format(i, files[i]))

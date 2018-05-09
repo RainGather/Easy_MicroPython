@@ -15,6 +15,9 @@ NTP_DELTA = 3155673600
 
 host = 'ntp1.aliyun.com'
 
+def http_time():
+    pass
+
 def ntp_time():
     NTP_QUERY = bytearray(48)
     NTP_QUERY[0] = 0x1b

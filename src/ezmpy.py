@@ -16,6 +16,7 @@ from WAVESHARE import Finger
 from PCF8591 import PCF8591
 from HCSR04 import HCSR04
 from NTP import set_ntp_time
+from simple_mqtt import MQTTClient
 
 
 def num_map(num):
@@ -31,30 +32,9 @@ def ULTRASONIC(trig_Pin, echo_Pin):
     echo_Pin = num_map(echo_Pin)
     return HCSR04(trig_Pin, echo_Pin)
     
-
-def WIFI(ssid, pwd):
-    wlan = network.WLAN(network.STA_IF)
-    if not wlan.isconnected():
-        print('Connecting to network...')
-        wlan.active(True)
-        wlan.connect(ssid, pwd)
-        t = time.time()
-        while not wlan.isconnected():
-            if time.time() - t > 15:
-                print('Network Connect Error, Please Press [RST] To Retry...')
-                wlan.active(False)
-                sys.exit()
-        print('Network config: ', wlan.ifconfig())
-    for i in range(5):
-        try:
-            set_ntp_time()
-            break
-        except Exception as e:
-            print(e)
-            if i < 4:
-                print('ntp time set error...try again...')
-            else:
-                print('ntp time set error! will just use local time')
+    
+def wifi_ok():
+    return network.WLAN(network.STA_IF).isconnected()
 
 
 def ntp_ok():
@@ -136,6 +116,77 @@ def PWM(num, freq=50):
     pin = machine.Pin(num, machine.Pin.OUT)
     return machine.PWM(pin, freq=freq)
 
+
+class Daemon():
+    def __init__(self, delay=0):
+        self.fs = []
+        self.delay = delay
+        self.mqtt = None
+ 
+    def wifi(self, ssid, pwd, host='www.hzasteam.org', port=1883):
+        wlan = network.WLAN(network.STA_IF)
+        if not wlan.isconnected():
+            print('Connecting to network...')
+            wlan.active(True)
+            wlan.connect(ssid, pwd)
+            t = time.time()
+            while not wlan.isconnected():
+                if time.time() - t > 15:
+                    print('Network Connect Error, Please Press [RST] To Retry...')
+                    wlan.active(False)
+                    sys.exit()
+            print('Network config: ', wlan.ifconfig())
+        for i in range(5):
+            try:
+                set_ntp_time()
+                break
+            except Exception as e:
+                print(e)
+                if i < 4:
+                    print('ntp time set error...try again...')
+                else:
+                    print('ntp time set error! will just use local time')
+        self.mqtt = MQTTClient('default', host, port)
+        self.mqtt.connect()
+        assert self.mqtt is not None, 'mqtt connect error!'
+
+    def loop(self, f):
+        self.fs.append(f)
+    
+    def run_once(self):
+        for f in self.fs:
+            f()
+        if self.mqtt is not None:
+            self.mqtt.check_msg()
+    
+    def run(self):
+        print('Start Running...')
+        while True:
+            try:
+                self.run_once()
+            except Exception as e:
+                print(e)
+            time.sleep(self.delay)
+    
+    def pub(self, *args, **kwargs):
+        assert self.mqtt is not None, 'WiFi not connect!'
+        self.mqtt.publish(*args, **kwargs)
+    
+    def sub(self, *args, **kwargs):
+        assert self.mqtt is not None, 'WiFi not connect!'
+        def _reg_f(f):
+            self.mqtt.set_callback(f)
+            self.mqtt.subscribe(*args, **kwargs)
+        return _reg_f
+    
+    
+daemon = Daemon()
+loop = daemon.loop
+sub = daemon.sub
+pub = daemon.pub
+run = daemon.run
+wifi = daemon.wifi
+WIFI = wifi
 
 DUOJI = SERVO
 FINGER = WAVESHARE_UART_Fingerprint_Reader

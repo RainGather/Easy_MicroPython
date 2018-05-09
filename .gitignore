@@ -1,4 +1,5 @@
 **/__pycache__
+**/*.mpy
 **/main.py
 docs/_build
 **/.vscode
