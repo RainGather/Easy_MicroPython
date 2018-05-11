@@ -5,6 +5,6 @@
 
 如下代码可以通过超声波传感器获取距离::
 
-    from ezmpy import *
+    # 将ULTRASONIC换成CHAOSHENGBO同效
     u = ULTRASONIC(1, 2)  # 1是超声波探测器上的Echo_Pin脚所接的针脚号，2是超声波探测上的Trig_Pin脚所接的针脚号。部分厂商的针脚是相反的，如果无法正常使用，两者换一下再试试看。
     u.get()  # 获取距离，单位为米

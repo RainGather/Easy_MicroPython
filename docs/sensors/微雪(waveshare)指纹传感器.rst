@@ -11,7 +11,7 @@
 
 如需设定超时，用如下方式声明::
 
-    f = FINGER(timeout=10)
+    f = FINGER(timeout=10)  # 将FINGER换成ZHIWEN也同效果
 
 指纹录入::
 

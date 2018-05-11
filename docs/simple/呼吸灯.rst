@@ -5,7 +5,6 @@
 
     # 导入时间库，可以使用等待功能
     import time
-    from ezmpy import *
 
 
     # 声明2针脚为PWM输出端，在ESP8266中针脚0, 2, 4, 5, 12, 13, 14 和 15支持PWM模拟输出 

@@ -1,4 +1,4 @@
 @echo off
 chcp 65001
-bash -c "python3 build.py"
+python upload.py
 pause

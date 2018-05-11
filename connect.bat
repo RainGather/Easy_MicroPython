@@ -1,3 +1,4 @@
 @echo off
-python flash.py connect
+chcp 65001
+python upload.py connect
 pause

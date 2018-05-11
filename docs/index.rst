@@ -11,6 +11,7 @@ Easy MicroPython 教程与手册
 
     intro
     install
+    约定
     base/index
     sensors/index
     simple/index

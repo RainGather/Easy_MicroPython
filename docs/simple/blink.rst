@@ -5,7 +5,6 @@ LED闪烁
 
     # 导入time库，可以使用等待等功能
     import time
-    from ezmpy import *
 
 
     # 设置针脚0为输出端

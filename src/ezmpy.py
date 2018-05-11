@@ -43,10 +43,17 @@ def ntp_ok():
     return True
 
 
-def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=19200, timeout=False):
-    ser = UART(port, baudrate)
-    ser.init(baudrate, bits=8, parity=None, stop=1)
-    return Finger(ser=ser, timeout=timeout)
+def WAVESHARE_UART_Fingerprint_Reader(port=1, baudrate=115200, timeout=False):
+    if 'esp32' in sys.platform.lower():
+        ser = UART(port)
+        ser.init(baudrate, bits=8, parity=None, stop=1)
+        return Finger(send_ser=ser, timeout=timeout)
+    else:
+        recv_ser = UART(0, baudrate)
+        send_ser = UART(1, baudrate)
+        recv_ser.init(baudrate, bits=8, parity=None, stop=1)
+        send_ser.init(baudrate, bits=8, parity=None, stop=1)
+        return Finger(send_ser=send_ser, recv_ser=recv_ser, timeout=timeout)
 
 
 class ANALOG(PCF8591):
@@ -82,7 +89,7 @@ class DHT11():
         return self.p.temperature(), self.p.humidity()
 
 
-class OUT():
+class Out_():
     def __init__(self, num):
         num = num_map(num)
         self.p = machine.Pin(num, machine.Pin.OUT)
@@ -96,7 +103,7 @@ class OUT():
         self.p.value(0)
 
 
-def IN(num):
+def In_(num):
     num = num_map(num)
     return machine.Pin(num, machine.Pin.IN)
 
@@ -115,6 +122,34 @@ def PWM(num, freq=50):
     num = num_map(num)
     pin = machine.Pin(num, machine.Pin.OUT)
     return machine.PWM(pin, freq=freq)
+    
+    
+def ser_mode(baudrate=9600, sub_topic='#'):
+    if 'esp32' in sys.platform.lower():
+        recv_ser = UART(1, baudrate)
+        recv_ser.init(baudrate, bits=8, parity=None, stop=1)
+        send_ser = recv_ser
+    else:
+        recv_ser = UART(0, baudrate)
+        recv_ser.init(baudrate, bits=8, parity=None, stop=1)
+        send_ser = UART(1, baudrate)
+        send_ser.init(baudrate, bits=8, parity=None, stop=1)
+    
+    @loop
+    def loop_pub():
+        if recv_ser.any():
+            recv = recv_ser.read()
+            print(recv)
+            topic, msg = recv.split('||')
+            pub(topic, msg)
+    
+    @sub(sub_topic)
+    def loop_cb(topic, msg):
+        info = '{}||{}'.format(topic, msg)
+        print(info)
+        send_ser.write(info)
+    
+    run()
 
 
 class Daemon():
@@ -122,8 +157,8 @@ class Daemon():
         self.fs = []
         self.delay = delay
         self.mqtt = None
- 
-    def wifi(self, ssid, pwd, host='www.hzasteam.org', port=1883):
+    
+    def wifi(self, ssid, pwd, test_mqtt=True):
         wlan = network.WLAN(network.STA_IF)
         if not wlan.isconnected():
             print('Connecting to network...')
@@ -146,7 +181,11 @@ class Daemon():
                     print('ntp time set error...try again...')
                 else:
                     print('ntp time set error! will just use local time')
-        self.mqtt = MQTTClient('default', host, port)
+        if test_mqtt:
+            self.mqtt_init()
+    
+    def mqtt_init(self, host='test.mosquitto.org', port=1883, user=None, pwd=None):
+        self.mqtt = MQTTClient('default', host, port, user=user, password=pwd)
         self.mqtt.connect()
         assert self.mqtt is not None, 'mqtt connect error!'
 
@@ -165,15 +204,16 @@ class Daemon():
             try:
                 self.run_once()
             except Exception as e:
-                print(e)
+                pass
+                # print(e)
             time.sleep(self.delay)
     
     def pub(self, *args, **kwargs):
-        assert self.mqtt is not None, 'WiFi not connect!'
+        assert self.mqtt is not None, 'MQTT not init!'
         self.mqtt.publish(*args, **kwargs)
     
     def sub(self, *args, **kwargs):
-        assert self.mqtt is not None, 'WiFi not connect!'
+        assert self.mqtt is not None, 'MQTT not init!'
         def _reg_f(f):
             self.mqtt.set_callback(f)
             self.mqtt.subscribe(*args, **kwargs)
@@ -186,8 +226,14 @@ sub = daemon.sub
 pub = daemon.pub
 run = daemon.run
 wifi = daemon.wifi
+mqtt_init = daemon.mqtt_init
 WIFI = wifi
 
 DUOJI = SERVO
 FINGER = WAVESHARE_UART_Fingerprint_Reader
 CHAOSHENGBO = ULTRASONIC
+ZHIWEN = FINGER
+OUT = Out_
+IN = In_
+O = Out_
+I = In_

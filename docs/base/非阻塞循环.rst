@@ -1,0 +1,34 @@
+非阻塞循环
+=================
+
+如果采用如下方式进行循环::
+
+    while True:
+        print('hello world')
+    print('这一条永远不会被执行')
+
+会产生阻塞，导致最下面的print命令永远不会被执行。
+
+所以Easy MicroPython集成了一个非阻塞式的循环，用如下方式即可::
+
+    @loop
+    def any_name():  # 这个函数名可以任取
+        print('hello world1')
+
+    print('这条不会被阻塞，会执行')
+
+    @loop
+    def any_name2():
+        print('hello world2')
+
+最终输出为：
+
+这条不会被阻塞，会执行
+hello world1
+hello world2
+hello world1
+hello world2
+hello world1
+hello world2
+...
+

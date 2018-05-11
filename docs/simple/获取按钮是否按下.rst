@@ -5,7 +5,6 @@
 
     # 导入时间库，这样可以使用等待的功能
     import time
-    from ezmpy import *
 
 
     # 将针脚0作为数字输入

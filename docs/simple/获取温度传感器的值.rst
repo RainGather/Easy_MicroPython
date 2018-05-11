@@ -4,7 +4,6 @@
 将DHT11或DHT22的信号线连接到针脚2，用如下代码获取温湿度的值::
 
     import time
-    from ezmpy import *
 
 
     # 2针脚连DHT11温湿度传感器的数据端，如果是DHT22请将下列代码中的DHT11改成DHT22
