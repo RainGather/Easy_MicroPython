@@ -21,14 +21,14 @@
     def any_name2():
         print('hello world2')
 
-最终输出为：
+最终输出为::
 
-这条不会被阻塞，会执行
-hello world1
-hello world2
-hello world1
-hello world2
-hello world1
-hello world2
-...
+    这条不会被阻塞，会执行
+    hello world1
+    hello world2
+    hello world1
+    hello world2
+    hello world1
+    hello world2
+    ...
 
