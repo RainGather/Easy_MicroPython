@@ -15,7 +15,8 @@ except Exception as e:
 
 # current_dir = os.path.split(os.path.realpath(__file__))[0]
 current_path = pathlib.Path('.')
-os.chdir(current_path)
+(current_path / 'cache').mkdir(exist_ok=True, parents=True)
+# os.chdir(current_path)
 
 
 def flash(com, file):
@@ -67,7 +68,7 @@ def find_com():
 
 
 def get_main_file_name():
-    files = [p.name for p in current_path.glob('*.py') if p.name.lower() not in ['flash.py', 'upload.py', 'build.py']]
+    files = [p.name for p in current_path.glob('*.py') if p.name.lower() not in ['flash.py', 'upload.py', 'build.py', 'esptool.py']]
     print('请选择烧录文件(如你想烧录的文件不在列表中，请将该文件复制到本目录下)：')
     for i in range(len(files)):
         print('[{}]: {}'.format(i, files[i]))
