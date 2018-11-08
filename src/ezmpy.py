@@ -156,7 +156,9 @@ class Daemon():
     def __init__(self, delay=0):
         self.fs = []
         self.delay = delay
+        self.g = {}
         self.mqtt = None
+        self.timers = []
     
     def wifi(self, ssid, pwd, test_mqtt=True):
         wlan = network.WLAN(network.STA_IF)
@@ -189,12 +191,21 @@ class Daemon():
         self.mqtt.connect()
         assert self.mqtt is not None, 'mqtt connect error!'
 
+    def set_timer(self, delta_time, f):
+        trigger_time = int(time.time()) + int(delta_time)
+        self.timers.append([trigger_time, f])
+
     def loop(self, f):
         self.fs.append(f)
     
     def run_once(self):
         for f in self.fs:
             f()
+        for timer_i in range(len(self.timers)):
+            if time.time() >= self.timers[timer_i][0]:
+                self.timers[timer_i][1]()
+                del self.timers[timer_i]
+                break
         if self.mqtt is not None:
             self.mqtt.check_msg()
     
@@ -225,7 +236,9 @@ loop = daemon.loop
 sub = daemon.sub
 pub = daemon.pub
 run = daemon.run
+g = daemon.g
 wifi = daemon.wifi
+timer = daemon.set_timer
 mqtt_init = daemon.mqtt_init
 WIFI = wifi
 

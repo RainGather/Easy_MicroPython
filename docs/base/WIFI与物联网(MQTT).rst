@@ -16,11 +16,11 @@ MQTT是一种针对物联网优化过的协议，其结构很简单，为'主题
 C2可以订阅一个主题，名字与上述C1名一致。
 这样一旦'computer_room/temperature'这个主题发生改变，C2就可以立刻获取改变后的值。获取值以后，可以判断其是否高于某个温度，从而决定是否发出警报。
 
-默认情况下，一旦连接wifi，就会连接上test.mosquito.org的服务器，该服务器是公共服务器，如您只是测试使用，可用此服务器，如正式使用，请务必切换到安全的服务器。
+默认情况下，一旦连接wifi，就会连接上test.mosquitto.org的服务器，该服务器是公共服务器，如您只是测试使用，可用此服务器，如正式使用，请务必切换到安全的服务器。
 
 用如下代码可以指定自己的MQTT服务器和验证方式::
 
-    wifi('wifiname', 'wifipwd', False)  # 需要在连接WiFi时加入False参数，否则会直接连接到test.mosquito.org服务器。
+    wifi('wifiname', 'wifipwd', False)  # 需要在连接WiFi时加入False参数，否则会直接连接到test.mosquitto.org服务器。
     mqtt_init(host='www.yoursite.org', port=1883, user='yourusername', pwd='youruserpwd')  # 如果你的mqtt服务器没有验证，则可以不填写mqtt_user与mqtt_pwd
 
 发布主题::

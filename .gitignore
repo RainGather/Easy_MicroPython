@@ -3,3 +3,4 @@
 **/main.py
 docs/_build
 **/.vscode
+release/test.py
