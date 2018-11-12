@@ -1,6 +1,6 @@
 **/__pycache__
 **/*.mpy
-**/main.py
+main.py
 docs/_build
 **/.vscode
 release/test.py

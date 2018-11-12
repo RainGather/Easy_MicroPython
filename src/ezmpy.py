@@ -159,6 +159,11 @@ class Daemon():
         self.g = {}
         self.mqtt = None
         self.timers = []
+        self.recv_ser = None
+        self.send_ser = None
+        self.serial_mode = False
+        self.send_cache = None
+        self.recv = ''
     
     def wifi(self, ssid, pwd, test_mqtt=True):
         wlan = network.WLAN(network.STA_IF)
@@ -199,6 +204,11 @@ class Daemon():
         self.fs.append(f)
     
     def run_once(self):
+        if self.mqtt is not None:
+            self.mqtt.check_msg()
+        if self.serial_mode:
+            self.serial_daemon_once()
+            return
         for f in self.fs:
             f()
         for timer_i in range(len(self.timers)):
@@ -206,8 +216,6 @@ class Daemon():
                 self.timers[timer_i][1]()
                 del self.timers[timer_i]
                 break
-        if self.mqtt is not None:
-            self.mqtt.check_msg()
     
     def run(self):
         print('Start Running...')
@@ -230,6 +238,54 @@ class Daemon():
             self.mqtt.subscribe(*args, **kwargs)
         return _reg_f
     
+    def serial_init(self, baudrate=115200):
+        self.recv_ser = UART(0, baudrate)
+        self.send_ser = UART(1, baudrate)
+        self.recv_ser.init(baudrate, bits=8, parity=None, stop=1)
+        self.send_ser.init(baudrate, bits=8, parity=None, stop=1)
+        self.serial_mode = True
+    
+    def serial_send(self, topic, msg):
+        topic = topic.decode('utf-8')
+        msg = msg.decode('utf-8')
+        resp = 'sub|' + topic + '|' + msg + ';'
+        self.send_ser.write(resp)
+    
+    def serial_daemon_once(self):
+        while self.recv_ser.any():
+            self.recv += self.recv_ser.read().decode('utf-8')
+            if self.recv != '' and self.recv[-1] == ';':
+                break
+        if self.recv != '' and self.recv[-1] == ';':
+            recv = self.recv[:-1].strip()
+            self.recv = ''
+            recv = recv.split('|')
+            cmd = recv[0]
+            args = recv[1:]
+            if cmd.lower() == 'pub' and len(args) == 2:
+                topic, msg = args
+                pub(topic, msg)
+            elif cmd.lower() == 'sub' and len(args) == 1:
+                topic = args[0]
+                print(topic)
+                self.mqtt.set_callback(self.serial_send)
+                self.mqtt.subscribe(topic)
+            elif cmd.lower() == 'wif' and len(args) == 2:
+                wifiname, wifipwd = args
+                self.wifi(wifiname, wifipwd)
+            elif cmd.lower() == 'svr' and len(args) >= 1:
+                host = args[0]
+                port = 1883
+                user = None
+                pwd = None
+                if len(args) >= 2:
+                    port = args[1]
+                if len(args) == 4:
+                    user = args[2]
+                    pwd = args[3]
+                self.mqtt_init(host, port, user, pwd)
+            self.send_ser.write('sta|ok;')
+                
     
 daemon = Daemon()
 loop = daemon.loop
@@ -240,6 +296,7 @@ g = daemon.g
 wifi = daemon.wifi
 timer = daemon.set_timer
 mqtt_init = daemon.mqtt_init
+serial_mode = daemon.serial_init
 WIFI = wifi
 
 DUOJI = SERVO

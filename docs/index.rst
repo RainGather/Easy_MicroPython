@@ -15,3 +15,4 @@ Easy MicroPython 教程与手册
     base/index
     sensors/index
     simple/index
+    serial/index
