@@ -284,6 +284,9 @@ class Daemon():
                     user = args[2]
                     pwd = args[3]
                 self.mqtt_init(host, port, user, pwd)
+            else:
+                self.send_ser.write('sta|no_cmd;')
+                return
             self.send_ser.write('sta|ok;')
                 
     
