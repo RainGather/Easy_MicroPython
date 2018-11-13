@@ -139,14 +139,12 @@ def ser_mode(baudrate=9600, sub_topic='#'):
     def loop_pub():
         if recv_ser.any():
             recv = recv_ser.read()
-            print(recv)
             topic, msg = recv.split('||')
             pub(topic, msg)
     
     @sub(sub_topic)
     def loop_cb(topic, msg):
         info = '{}||{}'.format(topic, msg)
-        print(info)
         send_ser.write(info)
     
     run()
@@ -163,7 +161,7 @@ class Daemon():
         self.send_ser = None
         self.serial_mode = False
         self.send_cache = None
-        self.recv = ''
+        self.recv = b''
     
     def wifi(self, ssid, pwd, test_mqtt=True):
         wlan = network.WLAN(network.STA_IF)
@@ -176,10 +174,12 @@ class Daemon():
                 if time.time() - t > 15:
                     print('Network Connect Error, Please Press [RST] To Retry...')
                     if self.serial_mode:
-                        self.send_ser.write('sta|exit;')
+                        self.send_ser.write('[sta|exit]')
                     wlan.active(False)
                     sys.exit()
             print('Network config: ', wlan.ifconfig())
+        else:
+            print('Network already connect: ', wlan.ifconfig())
         for i in range(5):
             try:
                 set_ntp_time()
@@ -226,7 +226,7 @@ class Daemon():
                 self.run_once()
             except Exception as e:
                 pass
-                # print(e)
+                print(e)
             time.sleep(self.delay)
     
     def pub(self, *args, **kwargs):
@@ -248,19 +248,22 @@ class Daemon():
         self.serial_mode = True
     
     def serial_send(self, topic, msg):
-        topic = topic.decode('utf-8')
-        msg = msg.decode('utf-8')
-        resp = 'sub|' + topic + '|' + msg + ';'
+        # topic = topic.decode('utf-8')
+        # msg = msg.decode('utf-8')
+        resp = b'[sub|' + topic + b'|' + msg + b']'
+        print('send resp: {}'.format(resp))
         self.send_ser.write(resp)
     
     def serial_daemon_once(self):
         while self.recv_ser.any():
-            self.recv += self.recv_ser.read().decode('utf-8')
-            if self.recv != '' and self.recv[-1] == ';':
+            self.recv += self.recv_ser.read()
+            if b'[' in self.recv and b']' in self.recv:
                 break
-        if self.recv != '' and self.recv[-1] == ';':
-            recv = self.recv[:-1].strip()
-            self.recv = ''
+        if b'[' in self.recv and b']' in self.recv:
+            recv = self.recv.strip().split(b'[')[1].split(b']')[0]
+            self.recv = b''
+            recv = recv.decode('utf-8')
+            print('recv cmd: {}'.format(recv))
             recv = recv.split('|')
             cmd = recv[0]
             args = recv[1:]
@@ -269,31 +272,31 @@ class Daemon():
                 pub(topic, msg)
             elif cmd.lower() == 'sub' and len(args) == 1:
                 topic = args[0]
-                print(topic)
+                # self.sub(topic)(self.serial_send)
                 self.mqtt.set_callback(self.serial_send)
                 self.mqtt.subscribe(topic)
             elif cmd.lower() == 'wif' and len(args) == 2:
                 wifiname, wifipwd = args
-                self.wifi(wifiname, wifipwd)
+                self.wifi(wifiname, wifipwd, test_mqtt=False)
             elif cmd.lower() == 'svr' and len(args) >= 1:
                 host = args[0]
                 port = 1883
                 user = None
                 pwd = None
                 if len(args) >= 2:
-                    port = args[1]
+                    port = int(args[1])
                 if len(args) == 4:
                     user = args[2]
                     pwd = args[3]
                 self.mqtt_init(host, port, user, pwd)
             elif cmd.lower() == 'sys' and len(args) >= 1:
                 if args[0] == 'reboot':
-                    self.send_ser.write('sta|rebooting;')
+                    self.send_ser.write('[sta|rebooting]')
                     machine.reset()
             else:
-                self.send_ser.write('sta|no_cmd;')
+                self.send_ser.write('[sta|no_cmd]')
                 return
-            self.send_ser.write('sta|ok;')
+            self.send_ser.write('[sta|ok]')
                 
     
 daemon = Daemon()
