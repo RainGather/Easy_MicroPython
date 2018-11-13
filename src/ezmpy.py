@@ -175,6 +175,8 @@ class Daemon():
             while not wlan.isconnected():
                 if time.time() - t > 15:
                     print('Network Connect Error, Please Press [RST] To Retry...')
+                    if self.serial_mode:
+                        self.send_ser.write('sta|exit;')
                     wlan.active(False)
                     sys.exit()
             print('Network config: ', wlan.ifconfig())
@@ -284,6 +286,10 @@ class Daemon():
                     user = args[2]
                     pwd = args[3]
                 self.mqtt_init(host, port, user, pwd)
+            elif cmd.lower() == 'sys' and len(args) >= 1:
+                if args[0] == 'reboot':
+                    self.send_ser.write('sta|rebooting;')
+                    machine.reset()
             else:
                 self.send_ser.write('sta|no_cmd;')
                 return
