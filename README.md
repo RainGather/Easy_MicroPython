@@ -17,9 +17,3 @@ http://easy-micropython.readthedocs.io/zh_CN/latest/install.html
 # LICENSE
 
 GPL v3.0
-
-# 作者联系方式
-
-宁波市惠贞书院高中部 裘老师
-
-1809523092(at)qq.com
